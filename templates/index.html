@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>腾讯防水墙使用测试</title>
+    <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+</head>
+<body>
+
+<h1>腾讯防水墙使用测试</h1>
+<p>地址：<a href="https://007.qq.com/">https://007.qq.com/</a></p>
+
+<!--点击此元素会自动激活验证码-->
+<!--id : 元素的id(必须)-->
+<!--data-appid : AppID(必须)-->
+<!--data-cbfn : 回调函数名(必须)-->
+<!--data-biz-state : 业务自定义透传参数(可选)-->
+<button id="TencentCaptcha"
+        data-appid="2032405422"
+        data-cbfn="callback"
+>验证
+</button>
+<h3>前端认证结果：</h3>
+<div id="result-fore"></div>
+
+<h3>后端认证结果：</h3>
+<div id="result-back"></div>
+
+
+<script>
+    // 为验证码创建回调函数，注意函数名要与data-cbfn相同
+    window.callback = function (res) {
+        console.log(res);
+        // res（未通过验证）= {ret: 1, ticket: null}
+        // res（验证成功） = {ret: 0, ticket: "String", randstr: "String"}
+        if (res.ret === 0) {
+            // alert(res.ticket); // 票据
+            var result_fore = $("#result-fore");
+
+            var p01 = document.createElement("p");
+            p01.innerText = "验证结果 (ret): " + res.ret;
+            result_fore.append(p01);
+
+            var p02 = document.createElement("p");
+            p02.innerText = "票据 (ticket): " + res.ticket;
+            result_fore.append(p02);
+
+            var p03 = document.createElement("p");
+            p03.innerText = "随机串 (randstr): " + res.randstr;
+            result_fore.append(p03);
+
+
+            // 客户端验证票据(ticket)
+            $.get(
+                "check",
+                res,
+                function (data) {
+                    var result_back = $("#result-back");
+
+                    var p1 = document.createElement("p");
+                    p1.innerText = "恶意等级 (evil_level): " + data.evil_level;
+                    result_back.append(p1);
+
+                    var p2 = document.createElement("p");
+                    p2.innerText = "参数校验结果 (response): " + data.response;
+                    result_back.append(p2);
+
+                    var p3 = document.createElement("p");
+                    p3.innerText = "验证错误信息 (err_msg): " + data.err_msg;
+                    result_back.append(p3);
+
+                });
+        }
+    }
+</script>
+</body>
+</html>
